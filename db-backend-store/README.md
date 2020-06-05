@@ -48,7 +48,7 @@ To use the MySQL prompt and execute SQL queries directly on the MySQL database r
 first run the following command:
 
 ```bash
-docker exec -it mlflow_mysql_db mysql -u mlflowuser -p
+docker exec -it mlflow_mysql_db mysql -u mlflowusr -p
 ```
 
 Give the password for the `mlflowuser` user and start submitting your SQL queries.
@@ -73,3 +73,27 @@ for database, in cursor:
 cursor.close()
 cnx.close()
 ```
+
+## Using a SQL database as MLflow backend store
+As backend store for the metadata, metrics and tags, user can choose between a file store and a DB-backed store. A file
+store simply consist in storing data in a hierarchy of files on a filesystem like the local filesystem (and others ?). By default,
+tracking data is stored on the local file system in the *./mlruns* directory. DB-backed storage consists in storing the 
+metadata in a SQL database. 
+
+MLflow uses [SQLAlchemy](https://www.sqlalchemy.org/), an object-relational mapper (ORM) for Python, as SQL toolkit. MLflow 
+therefore support the SQL databases supported by SQLAlchemy which include: MySQL, SQLite, PostgreSQL, MSSQL (Microsoft SQL 
+Server). Each of these SQL database types is called a dialect. To interact with a given SQL dialect, SQLAlchemy also needs
+a Python client library (a Python package) called a driver. For each dialect, the user can choose among a variety of supported 
+drivers. For example in the case of MySQL, supported drivers include: `mysql-python`, `mysqlclient`, `pymysql` and `mysql-connection`.
+The user should keep in mind the following points:
+* As the user can choose among a variety of dialects and drivers, the installation of the chosen Python driver is left to 
+the user: **Python SQL drivers are not part of the installed MLflow dependencies**.
+* Some drivers may introduce further dependencies (for example `mysqlclient` requires a few MySQL binaries) or introduce
+specific contraints (for example `pymysql` does not provide an encoder for the `numpy.float64` type forcing the user to cast
+affected objects into a supported type). In the case of the MySQL dialect, SQLAlchemy recommends using either `mysqlclient` 
+or `pymysql`. We chose to use `pymysql`.
+
+Notice: An ORM allows to programmatically work with all the databases it supports. In the case of Python, it means that 
+the programmer can interact with a database using Python object. If working with a particular SQL database, the ORM 
+is in charge of translating the operations performed on Python object in the appropriate SQL dialect. Such tools allow not
+to couple our code to a particular database type or SQL flavor.
