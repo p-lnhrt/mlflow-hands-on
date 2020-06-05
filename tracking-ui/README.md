@@ -1,0 +1,1 @@
+mlflow ui --backend-store-uri mysql+pymysql://mlflowusr:mlflowusrpwd@localhost:3306/mlflow --default-artifact-root ./mlruns
